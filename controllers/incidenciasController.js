@@ -90,4 +90,75 @@ const cambiarEstado = (req, res) => {
   }
   incidencia.estado = nuevoEstado;
   res.json({ mensaje: 'Estado actualizado correctamente' });
+
+
 };
+
+const eliminarIncidencia = (req, res) => {
+  const id = Number(req.params.id);
+
+  
+  const indice = incidencias.findIndex((inc) => inc.id === id);
+
+  
+  if (indice === -1) {
+    return res.status(404).json({ mensaje: 'Incidencia no encontrada' });
+  }
+
+  
+  incidencias.splice(indice, 1);
+
+  res.json({ mensaje: 'Incidencia eliminada correctamente' });
+};
+
+
+const contarPorEstado = (estado) => {
+  return incidencias.filter((inc) => inc.estado === estado).length;
+};
+
+
+const obtenerEstadisticas = (req, res) => {
+  res.json({
+    totalIncidencias: incidencias.length,
+    pendientes: contarPorEstado('Pendiente'),
+    enProceso: contarPorEstado('En Proceso'),
+    resueltas: contarPorEstado('Resuelta'),
+    canceladas: contarPorEstado('Cancelada')
+  });
+};
+
+const clasificarIncidencia = (req, res) => {
+  const id = Number(req.params.id);
+  const incidencia = incidencias.find((inc) => inc.id === id);
+
+  if (!incidencia) {
+    return res.status(404).json({ mensaje: 'Incidencia no encontrada' });
+  }
+
+  let clasificacion;
+  switch (incidencia.prioridad) {
+    case 'Alta':
+      clasificacion = 'Crítica';
+      break;
+    case 'Media':
+      clasificacion = 'Importante';
+      break;
+    case 'Baja':
+      clasificacion = 'Normal';
+      break;
+    default:
+      clasificacion = 'Sin clasificar';
+  }
+
+  res.json({ id: incidencia.id, clasificacion });
+};
+
+module.exports = {
+  registrarIncidencia,
+  listarIncidencias,
+  buscarIncidencia,
+  cambiarEstado,
+  eliminarIncidencia,
+  obtenerEstadisticas,
+  clasificarIncidencia,};
+
