@@ -53,3 +53,41 @@ const buscarIncidencia = (req, res) => {
 
   res.json(incidencia);
 };
+
+const cambiarEstado = (req, res) => {
+  const id = Number(req.params.id);
+  const { estado } = req.body || {};
+
+ 
+  const incidencia = incidencias.find((inc) => inc.id === id);
+  if (!incidencia) {
+    return res.status(404).json({ mensaje: 'Incidencia no encontrada' });
+  }
+
+  
+  if (!esTextoValido(estado)) {
+    return res.status(400).json({ mensaje: 'El estado es obligatorio' });
+  }
+
+  let nuevoEstado;
+  switch (estado.trim().toLowerCase()) {
+    case 'pendiente':
+      nuevoEstado = 'Pendiente';
+      break;
+    case 'en proceso':
+      nuevoEstado = 'En Proceso';
+      break;
+    case 'resuelta':
+      nuevoEstado = 'Resuelta';
+      break;
+    case 'cancelada':
+      nuevoEstado = 'Cancelada';
+      break;
+    default:
+      return res.status(400).json({
+        mensaje: 'Estado inválido. Use: Pendiente, En Proceso, Resuelta o Cancelada'
+      });
+  }
+  incidencia.estado = nuevoEstado;
+  res.json({ mensaje: 'Estado actualizado correctamente' });
+};
